@@ -168,7 +168,13 @@ export class FanXiaomiCard extends LitElement {
     }
     return this.hass.states[this.config.entity].attributes["model"];
   }
-
+  private updateFanSpeed(event: Event): void {
+    const newSpeed = Number((event.target as HTMLInputElement).value);
+    this.hass.callService("fan", "set_percentage", {
+      entity_id: this.config.entity,
+      percentage: newSpeed,
+    });
+  }
   private setChildLock(on) {
     if (this.deviceEntities.childLock) {
       this.hass.callService("switch", on ? "turn_on" : "turn_off", {
@@ -550,6 +556,18 @@ export class FanXiaomiCard extends LitElement {
                 : ""}
             </div>
           </div>`}
+      <div class="slider-container">
+        <p>风量控制: ${speed_percentage}%</p>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          value="${speed_percentage}"
+          step="1"
+          class="speed-slider"
+          @input=${(event) => this.updateFanSpeed(event)}
+        />
+      </div>    
       <div class="attr-row upper-container">
         ${child_lock !== undefined
           ? html`<div class="attr button-childlock" @click=${this.toggleChildLock}>
@@ -987,6 +1005,15 @@ export class FanXiaomiCard extends LitElement {
       .chevron.right {
         right: -30px;
         cursor: pointer;
+      }
+      .slider-container {
+        text-align: center;
+        margin: 10px 0;
+      }
+      .speed-slider {
+        width: 80%;
+        margin: 5px auto;
+        display: block;
       }
       .chevron span ha-icon {
         width: 30px;
